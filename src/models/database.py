@@ -85,7 +85,7 @@ class Message(Base):
     created_at: datetime = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
-    conversation = relationship("Conversation", back_populates="messages")
+    conversation = relationship("Conversation", back_populates="messages", foreign_keys=[conversation_id])
     attachments = relationship("File", secondary=message_attachments, back_populates="messages")
     
     def to_dict(self) -> Dict[str, Any]:

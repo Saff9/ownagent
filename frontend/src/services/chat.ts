@@ -87,7 +87,8 @@ class ChatService {
   async streamMessage(
     conversationId: string,
     data: SendMessageRequest,
-    callbacks: StreamCallbacks
+    callbacks: StreamCallbacks,
+    signal?: AbortSignal
   ): Promise<void> {
     const url = `/conversations/${conversationId}/stream`;
 
@@ -99,6 +100,7 @@ class ChatService {
           Accept: 'text/event-stream',
         },
         body: JSON.stringify(data),
+        signal, // Support for AbortController
       });
 
       if (!response.ok) {
@@ -112,6 +114,13 @@ class ChatService {
 
       const decoder = new TextDecoder();
       let buffer = '';
+
+      // Handle abort signal
+      if (signal) {
+        signal.addEventListener('abort', () => {
+          reader.cancel();
+        });
+      }
 
       while (true) {
         const { done, value } = await reader.read();
@@ -131,11 +140,19 @@ class ChatService {
         this.parseSSEEvent(buffer, callbacks);
       }
     } catch (error) {
-      console.error('Stream error:', error);
-      callbacks.onError?.({
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'STREAM_ERROR',
-      });
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Handle abort gracefully
+        callbacks.onError?.({
+          error: 'Request was cancelled',
+          code: 'ABORTED',
+        });
+      } else {
+        console.error('Stream error:', error);
+        callbacks.onError?.({
+          error: error instanceof Error ? error.message : 'Unknown error',
+          code: 'STREAM_ERROR',
+        });
+      }
     }
   }
 
@@ -170,9 +187,17 @@ class ChatService {
         case 'done':
           callbacks.onDone?.(parsed as StreamDoneEvent);
           break;
+        default:
+          // Unknown event type - log but don't crash
+          console.warn(`Unknown SSE event type: ${event}`);
       }
     } catch (error) {
       console.error('Failed to parse SSE data:', error);
+      // Propagate parsing error to caller
+      callbacks.onError?.({
+        error: error instanceof Error ? error.message : 'Failed to parse server response',
+        code: 'PARSE_ERROR',
+      });
     }
   }
 }

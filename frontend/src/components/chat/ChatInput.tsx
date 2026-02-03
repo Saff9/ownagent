@@ -3,6 +3,7 @@ import { Send, Paperclip, X, FileText, Image } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';
 import { fileService } from '../../services/files';
+import { Button } from '../common/Button';
 
 interface ChatInputProps {
   conversationId: string;
@@ -118,6 +119,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
       // Stream the response
       setStreamingMessage('');
       let fullResponse = '';
+      let hasStarted = false;
+      let hasError = false;
 
       await chatService.streamMessage(
         conversationId,
@@ -129,13 +132,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
         },
         {
           onStart: (data) => {
+            hasStarted = true;
             setStreamingMessageId(data.message_id);
           },
           onToken: (data) => {
-            fullResponse += data.token;
-            appendStreamingToken(data.token);
+            if (!hasError) {
+              fullResponse += data.token;
+              appendStreamingToken(data.token);
+            }
           },
           onError: (data) => {
+            hasError = true;
             addToast({
               type: 'error',
               message: data.error,
@@ -144,14 +151,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
             setIsLoading(false);
           },
           onDone: () => {
-            // Add the complete message to the store
-            const assistantMessage = {
-              id: `temp-assistant-${Date.now()}`,
-              role: 'assistant' as const,
-              content: fullResponse,
-              created_at: new Date().toISOString(),
-            };
-            addMessage(assistantMessage);
+            // Only add message if we started and didn't error
+            if (hasStarted && !hasError) {
+              const assistantMessage = {
+                id: `temp-assistant-${Date.now()}`,
+                role: 'assistant' as const,
+                content: fullResponse,
+                created_at: new Date().toISOString(),
+              };
+              addMessage(assistantMessage);
+            }
             clearStreaming();
             setIsLoading(false);
           },

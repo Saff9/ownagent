@@ -62,11 +62,30 @@ async def create_conversation(
     db: Session = Depends(get_db)
 ):
     """Create a new conversation"""
+    from src.services.ai import get_provider_class
+    
+    # Validate provider exists
+    provider_class = get_provider_class(request.provider)
+    if not provider_class:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown provider: {request.provider}. Available providers: {', '.join(get_all_provider_ids())}"
+        )
+    
+    # Validate model if provided
+    if request.model:
+        available_models = [m.id for m in provider_class.get_models()]
+        if request.model not in available_models:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Model '{request.model}' not available for provider '{request.provider}'. Available models: {', '.join(available_models)}"
+            )
+    
     conversation = Conversation(
         id=str(uuid.uuid4()),
         title=request.title or "New Conversation",
         provider=request.provider,
-        model=request.model,
+        model=request.model or provider_class.default_model,
         system_prompt=request.system_prompt
     )
     

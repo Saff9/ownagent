@@ -5,6 +5,7 @@ Handles storing and retrieving memory facts
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from src.models.database import MemoryFact
 
@@ -158,6 +159,7 @@ class MemoryStorage:
         # Escape special characters for ilike pattern
         sanitized_query = query.replace("%", "\\%").replace("_", "\\_")
         
+        # Use SQLAlchemy's ilike which is parameterized
         facts = self.db.query(MemoryFact).filter(
             MemoryFact.is_active == True,
             MemoryFact.content.ilike(f"%{sanitized_query}%")

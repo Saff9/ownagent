@@ -6,8 +6,6 @@ import {
   PanelLeft,
   Pin,
   Trash2,
-  Sparkles,
-  Search,
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';
@@ -49,9 +47,14 @@ export const Sidebar: React.FC = () => {
 
   const handleNewChat = async () => {
     try {
+      // Get the selected provider/model from store, or use defaults
+      const { selectedProvider, selectedModel } = useStore.getState();
+      const provider = selectedProvider || 'claude';
+      const model = selectedModel || 'claude-3-sonnet';
+      
       const newConversation = await chatService.createConversation({
-        provider: 'claude',
-        model: 'claude-3-sonnet',
+        provider,
+        model,
       });
       setConversations([newConversation, ...conversations]);
       setCurrentConversation({ ...newConversation, messages: [] });

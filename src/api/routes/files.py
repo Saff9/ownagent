@@ -178,6 +178,7 @@ async def download_file(
 ):
     """Download the original file"""
     from fastapi.responses import FileResponse
+    import os
     
     file_record = db.query(FileModel).filter(
         FileModel.id == file_id
@@ -189,14 +190,25 @@ async def download_file(
             detail=f"File not found: {file_id}"
         )
     
-    if not os.path.exists(file_record.storage_path):
+    # Validate and sanitize the storage path to prevent path traversal
+    storage_path = os.path.abspath(file_record.storage_path)
+    upload_dir = os.path.abspath(settings.UPLOAD_DIR)
+    
+    # Ensure the file is within the allowed upload directory
+    if not storage_path.startswith(upload_dir):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access to this file is denied"
+        )
+    
+    if not os.path.exists(storage_path):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="File not found on disk"
         )
     
     return FileResponse(
-        path=file_record.storage_path,
+        path=storage_path,
         filename=file_record.original_name,
         media_type=file_record.mime_type
     )
