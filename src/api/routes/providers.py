@@ -42,6 +42,13 @@ async def list_providers(
         # We need to create with a dummy key for metadata access
         is_configured = config is not None and config.get_api_key() is not None
         
+        # Get provider name from temporary instance
+        try:
+            temp_instance = provider_class.__new__(provider_class)
+            provider_name = temp_instance.provider_name
+        except Exception:
+            provider_name = provider_id
+        
         # Get models list
         models = []
         if provider_class:
@@ -64,7 +71,7 @@ async def list_providers(
         
         providers.append({
             "id": provider_id,
-            "name": provider_class.provider_name if provider_class else provider_id,
+            "name": provider_name,
             "status": "available" if is_configured else "unavailable",
             "is_configured": is_configured,
             "error": None if is_configured else "API key not configured",
@@ -111,9 +118,15 @@ async def get_provider(
     except Exception:
         pass
     
+    # Get provider name from temporary instance
+    try:
+        provider_name = temp_instance.provider_name
+    except Exception:
+        provider_name = provider_id
+    
     return BaseResponse(data={
         "id": provider_id,
-        "name": provider_class.provider_name if provider_class else provider_id,
+        "name": provider_name,
         "status": "available" if is_configured else "unavailable",
         "is_configured": is_configured,
         "models": models,
