@@ -6,6 +6,8 @@ import {
   PanelLeft,
   Pin,
   Trash2,
+  Sparkles,
+  Search,
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';

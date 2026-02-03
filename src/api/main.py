@@ -6,10 +6,11 @@ import sys
 from datetime import datetime
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -80,13 +81,15 @@ async def genzsmart_exception_handler(request: Request, exc: GenZSmartException)
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle unexpected exceptions"""
+    error_msg = str(exc) if settings.DEBUG else "Internal server error"
+    # Don't expose internal error details for security
     return JSONResponse(
         status_code=500,
         content={
             "success": False,
             "error": {
                 "code": "INTERNAL_ERROR",
-                "message": str(exc) if settings.DEBUG else "Internal server error"
+                "message": error_msg
             }
         }
     )
@@ -103,7 +106,7 @@ async def health_check():
     db_status = "connected"
     try:
         with get_db_session() as db:
-            db.execute("SELECT 1")
+            db.execute(text("SELECT 1"))
     except Exception:
         db_status = "error"
     

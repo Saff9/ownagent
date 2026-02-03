@@ -3,7 +3,6 @@ import { Send, Paperclip, X, FileText, Image } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';
 import { fileService } from '../../services/files';
-import { Button } from '../common/Button';
 
 interface ChatInputProps {
   conversationId: string;

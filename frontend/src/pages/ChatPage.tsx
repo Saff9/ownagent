@@ -26,7 +26,7 @@ export const ChatPage: React.FC = () => {
 };
 
 const WelcomeScreen: React.FC = () => {
-  const { sidebarOpen, isMobile } = useStore();
+  const { sidebarOpen, isMobile, addToast } = useStore();
 
   const examples = [
     {

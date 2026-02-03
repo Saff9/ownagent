@@ -37,8 +37,8 @@ class Settings(BaseSettings):
         "image/jpeg",
     ]
     
-    # CORS
-    CORS_ORIGINS: list = ["*"]
+    # CORS - Restrict origins for security
+    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"]
     
     class Config:
         env_file = ".env"

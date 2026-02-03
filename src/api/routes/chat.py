@@ -5,9 +5,10 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from src.api.dependencies import get_db, get_provider, get_provider_manager, ProviderManager
 from src.models.database import Conversation, Message, ProviderConfig
@@ -34,6 +35,7 @@ async def list_conversations(
     query = db.query(Conversation)
     
     if search:
+        # Use parameterized query to prevent SQL injection
         query = query.filter(Conversation.title.ilike(f"%{search}%"))
     
     total = query.count()
@@ -356,7 +358,11 @@ async def stream_message(
                     yield f"event: done\ndata: {{\"finish_reason\": \"{chunk.finish_reason or 'stop'}\"}}\n\n"
                     
         except Exception as e:
-            yield f"event: error\ndata: {{\"error\": {__import__('json').dumps(str(e))}, \"code\": \"STREAM_ERROR\"}}\n\n"
+            # Log the actual error but send sanitized message to client
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Stream error for conversation {conversation_id}: {str(e)}")
+            yield f"event: error\ndata: {{\"error\": \"An error occurred while processing your request\", \"code\": \"STREAM_ERROR\"}}\n\n"
     
     return StreamingResponse(
         event_generator(),

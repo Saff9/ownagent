@@ -82,7 +82,7 @@ class PDFParser:
             result["word_count"] = len(result["text"].split())
             
         except Exception as e:
-            result["error"] = f"Failed to parse PDF: {str(e)}"
+            result["error"] = "Failed to parse PDF file. Please ensure the file is a valid PDF."
         
         return result
     

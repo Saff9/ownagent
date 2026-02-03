@@ -154,9 +154,13 @@ class MemoryStorage:
         Returns:
             List of matching facts with similarity scores
         """
+        # Sanitize search query to prevent SQL injection
+        # Escape special characters for ilike pattern
+        sanitized_query = query.replace("%", "\\%").replace("_", "\\_")
+        
         facts = self.db.query(MemoryFact).filter(
             MemoryFact.is_active == True,
-            MemoryFact.content.ilike(f"%{query}%")
+            MemoryFact.content.ilike(f"%{sanitized_query}%")
         ).limit(limit).all()
         
         results = []
