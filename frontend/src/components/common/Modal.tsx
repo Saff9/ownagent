@@ -62,15 +62,15 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         ref={contentRef}
-        className={`w-full ${sizes[size]} bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl shadow-2xl animate-slideUp`}
+        className={`w-full ${sizes[size]} bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl shadow-2xl animate-scaleIn`}
         role="dialog"
         aria-modal="true"
       >
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-primary)]">
+          <div className="flex items-start justify-between px-6 py-4 border-b border-[var(--border-primary)]">
             <div>
               {title && (
-                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                <h2 className="text-base font-semibold text-[var(--text-primary)]">
                   {title}
                 </h2>
               )}
@@ -83,7 +83,7 @@ export const Modal: React.FC<ModalProps> = ({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors ml-4"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />

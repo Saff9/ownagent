@@ -29,12 +29,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             className={`
-              w-full bg-[var(--bg-input)] text-[var(--text-primary)]
+              w-full bg-[var(--bg-secondary)] text-[var(--text-primary)]
               border border-[var(--border-primary)] rounded-lg
               placeholder:text-[var(--text-tertiary)]
-              focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)]
+              focus:outline-none focus:border-[var(--border-focus)] focus:ring-1 focus:ring-[var(--border-focus)]
               disabled:opacity-50 disabled:cursor-not-allowed
-              transition-colors duration-200
+              transition-all duration-200
               ${leftIcon ? 'pl-10' : 'pl-4'}
               ${rightIcon ? 'pr-10' : 'pr-4'}
               py-2.5

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import {
   MoreVertical,
   Share2,
@@ -6,12 +6,11 @@ import {
   Edit2,
   Check,
   X,
+  ChevronDown,
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';
 import { providerService } from '../../services/providers';
-import { Dropdown } from '../common/Dropdown';
-import type { Provider } from '../../types';
 
 export const Header: React.FC = () => {
   const {
@@ -81,51 +80,33 @@ export const Header: React.FC = () => {
     }
   };
 
-  const handleProviderChange = async (providerId: string) => {
-    setSelectedProvider(providerId);
-    const provider = providers.find((p) => p.id === providerId);
-    if (provider?.models.length) {
-      setSelectedModel(provider.models[0].id);
-    }
+  const providerColors: Record<string, string> = {
+    deepseek: '#6058e3',
+    claude: '#d97757',
+    grok: '#1d9bf0',
+    openai: '#10a37f',
+    openrouter: '#ef4444',
+    perplexity: '#22d3ee',
   };
 
-  const providerOptions = useMemo(
-    () =>
-      providers.map((p) => ({
-        value: p.id,
-        label: p.name,
-        icon: <ProviderIndicator provider={p} />,
-        disabled: p.status !== 'available',
-      })),
-    [providers]
-  );
-
-  const modelOptions = useMemo(() => {
-    const provider = providers.find((p) => p.id === selectedProvider);
-    return (
-      provider?.models.map((m) => ({
-        value: m.id,
-        label: m.name,
-      })) || []
-    );
-  }, [providers, selectedProvider]);
+  const currentProvider = providers.find((p) => p.id === selectedProvider);
 
   if (!currentConversation) {
     return (
       <header
         className={`
-          h-16 border-b border-[var(--border-primary)]
-          flex items-center justify-between px-4
+          h-14 border-b border-[var(--border-primary)]
+          flex items-center px-4
           bg-[var(--bg-primary)]
           ${sidebarOpen ? 'ml-[280px]' : ''}
           transition-all duration-300
         `}
       >
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">G</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[#3b82f6] flex items-center justify-center">
+            <span className="text-white font-semibold text-xs">G</span>
           </div>
-          <span className="font-semibold text-[var(--text-primary)]">
+          <span className="font-medium text-[var(--text-primary)] text-sm">
             GenZ Smart
           </span>
         </div>
@@ -136,7 +117,7 @@ export const Header: React.FC = () => {
   return (
     <header
       className={`
-        h-16 border-b border-[var(--border-primary)]
+        h-14 border-b border-[var(--border-primary)]
         flex items-center justify-between px-4
         bg-[var(--bg-primary)]
         ${sidebarOpen && !useStore.getState().isMobile ? 'ml-[280px]' : ''}
@@ -144,9 +125,9 @@ export const Header: React.FC = () => {
       `}
     >
       {/* Title Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
         {isEditingTitle ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <input
               type="text"
               value={editTitle}
@@ -155,25 +136,25 @@ export const Header: React.FC = () => {
                 if (e.key === 'Enter') handleTitleUpdate();
                 if (e.key === 'Escape') setIsEditingTitle(false);
               }}
-              className="bg-[var(--bg-input)] border border-[var(--border-primary)] rounded px-2 py-1 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+              className="bg-[var(--bg-input)] border border-[var(--border-primary)] rounded px-2.5 py-1.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--border-focus)] w-64"
               autoFocus
             />
             <button
               onClick={handleTitleUpdate}
-              className="p-1 rounded text-[var(--accent-success)] hover:bg-[var(--bg-hover)]"
+              className="p-1 rounded text-[var(--accent-success)] hover:bg-[var(--bg-hover)] transition-colors"
             >
               <Check className="w-4 h-4" />
             </button>
             <button
               onClick={() => setIsEditingTitle(false)}
-              className="p-1 rounded text-[var(--text-tertiary)] hover:bg-[var(--bg-hover)]"
+              className="p-1 rounded text-[var(--text-tertiary)] hover:bg-[var(--bg-hover)] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-medium text-[var(--text-primary)]">
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-sm font-medium text-[var(--text-primary)] truncate">
               {currentConversation.title}
             </h1>
             <button
@@ -181,7 +162,7 @@ export const Header: React.FC = () => {
                 setEditTitle(currentConversation.title);
                 setIsEditingTitle(true);
               }}
-              className="p-1 rounded text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] opacity-0 group-hover:opacity-100 transition-opacity"
+              className="p-1 rounded text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] opacity-0 group-hover:opacity-100 transition-all"
             >
               <Edit2 className="w-3.5 h-3.5" />
             </button>
@@ -190,34 +171,50 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Provider & Model Selectors */}
-      <div className="flex items-center gap-3">
-        <Dropdown
-          options={providerOptions}
-          value={selectedProvider || ''}
-          onChange={handleProviderChange}
-          className="w-40"
-        />
-
-        {modelOptions.length > 0 && (
-          <Dropdown
-            options={modelOptions}
-            value={selectedModel || ''}
-            onChange={setSelectedModel}
-            className="w-40"
+      <div className="flex items-center gap-2">
+        {/* Provider Badge */}
+        <div
+          className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-md"
+          style={{
+            '--provider-color': providerColors[currentProvider?.id || ''] || 'var(--accent-primary)',
+          } as React.CSSProperties}
+        >
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: providerColors[currentProvider?.id || ''] || 'var(--accent-primary)' }}
           />
+          <span className="text-xs font-medium text-[var(--text-secondary)]">
+            {currentProvider?.name || selectedProvider}
+          </span>
+          <ChevronDown className="w-3 h-3 text-[var(--text-tertiary)]" />
+        </div>
+
+        {/* Model Selector */}
+        {currentProvider?.models && currentProvider.models.length > 0 && (
+          <select
+            value={selectedModel || ''}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-md px-2.5 py-1 text-xs text-[var(--text-secondary)] focus:outline-none focus:border-[var(--border-focus)] cursor-pointer"
+          >
+            {currentProvider.models.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.name}
+              </option>
+            ))}
+          </select>
         )}
 
         {/* Actions Menu */}
         <div className="relative">
           <button
             onClick={() => setShowActions(!showActions)}
-            className="p-2 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+            className="p-1.5 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
           >
-            <MoreVertical className="w-5 h-5" />
+            <MoreVertical className="w-4 h-4" />
           </button>
 
           {showActions && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-lg z-50 animate-fadeIn">
+            <div className="absolute right-0 top-full mt-1 w-48 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-lg z-50 animate-slideUp overflow-hidden">
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(
@@ -226,7 +223,7 @@ export const Header: React.FC = () => {
                   addToast({ type: 'success', message: 'Link copied!' });
                   setShowActions(false);
                 }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] first:rounded-t-lg"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 Share
@@ -236,7 +233,7 @@ export const Header: React.FC = () => {
                   handleDeleteConversation();
                   setShowActions(false);
                 }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--accent-error)] hover:bg-[var(--bg-hover)] last:rounded-b-lg"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-[var(--accent-error)] hover:bg-[var(--bg-hover)] transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete
@@ -246,24 +243,6 @@ export const Header: React.FC = () => {
         </div>
       </div>
     </header>
-  );
-};
-
-const ProviderIndicator: React.FC<{ provider: Provider }> = ({ provider }) => {
-  const colors: Record<string, string> = {
-    deepseek: '#4f46e5',
-    claude: '#d97757',
-    grok: '#1d9bf0',
-    openai: '#10a37f',
-    openrouter: '#ef4444',
-    perplexity: '#22d3ee',
-  };
-
-  return (
-    <span
-      className="w-2 h-2 rounded-full"
-      style={{ backgroundColor: colors[provider.id] || '#6366f1' }}
-    />
   );
 };
 

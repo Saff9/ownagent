@@ -13,14 +13,14 @@ const colors = {
   success: 'text-[var(--accent-success)]',
   error: 'text-[var(--accent-error)]',
   warning: 'text-[var(--accent-warning)]',
-  info: 'text-[var(--accent-secondary)]',
+  info: 'text-[var(--accent-primary)]',
 };
 
 const bgColors = {
   success: 'bg-[var(--accent-success)]/10 border-[var(--accent-success)]/20',
   error: 'bg-[var(--accent-error)]/10 border-[var(--accent-error)]/20',
   warning: 'bg-[var(--accent-warning)]/10 border-[var(--accent-warning)]/20',
-  info: 'bg-[var(--accent-secondary)]/10 border-[var(--accent-secondary)]/20',
+  info: 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/20',
 };
 
 export const ToastContainer: React.FC = () => {
@@ -60,7 +60,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onClose }) => {
     <div
       className={`
         flex items-center gap-3 px-4 py-3 rounded-lg border
-        shadow-lg animate-slideUp min-w-[300px] max-w-[500px]
+        shadow-lg animate-slideUp min-w-[300px] max-w-[450px]
         ${bgColors[toast.type]}
       `}
       role="alert"

@@ -49,20 +49,27 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
   const normalizedLanguage = language?.toLowerCase() || 'text';
 
   return (
-    <div className="relative group my-4">
+    <div className="relative group my-4 rounded-lg overflow-hidden border border-[var(--border-primary)] bg-[var(--bg-tertiary)]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] border-b-0 rounded-t-lg">
-        <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase">
-          {normalizedLanguage}
-        </span>
+      <div className="flex items-center justify-between px-4 py-2 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)]">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--text-tertiary)]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--text-tertiary)] opacity-60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--text-tertiary)] opacity-40" />
+          </div>
+          <span className="text-xs font-medium text-[var(--text-secondary)] ml-2">
+            {normalizedLanguage}
+          </span>
+        </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-2 py-1 rounded text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+          className="flex items-center gap-1.5 px-2 py-1 rounded text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors opacity-0 group-hover:opacity-100"
         >
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-[var(--accent-success)]" />
-              <span className="text-[var(--accent-success)]">Copied!</span>
+              <span className="text-[var(--accent-success)]">Copied</span>
             </>
           ) : (
             <>
@@ -74,10 +81,10 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
       </div>
 
       {/* Code */}
-      <pre className="!mt-0 !rounded-t-none !border-t-0">
+      <pre className="!m-0 !rounded-none !bg-transparent overflow-x-auto">
         <code
           ref={codeRef}
-          className={`language-${normalizedLanguage}`}
+          className={`language-${normalizedLanguage} text-sm`}
         >
           {code}
         </code>

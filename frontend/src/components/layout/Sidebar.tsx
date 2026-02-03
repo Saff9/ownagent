@@ -3,13 +3,14 @@ import {
   Plus,
   MessageSquare,
   Settings,
+  PanelLeftClose,
   PanelLeft,
   Pin,
   Trash2,
+  Search,
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';
-import { Button } from '../common/Button';
 import type { Conversation } from '../../types';
 
 export const Sidebar: React.FC = () => {
@@ -47,7 +48,6 @@ export const Sidebar: React.FC = () => {
 
   const handleNewChat = async () => {
     try {
-      // Get the selected provider/model from store, or use defaults
       const { selectedProvider, selectedModel } = useStore.getState();
       const provider = selectedProvider || 'claude';
       const model = selectedModel || 'claude-3-sonnet';
@@ -142,7 +142,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile overlay */}
       {isMobile && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 animate-fadeIn"
+          className="fixed inset-0 bg-black/60 z-40 animate-fadeIn"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -152,53 +152,68 @@ export const Sidebar: React.FC = () => {
           fixed left-0 top-0 h-full z-50
           w-[280px] bg-[var(--bg-secondary)] border-r border-[var(--border-primary)]
           flex flex-col
-          ${isMobile ? 'animate-slideIn' : ''}
+          transition-transform duration-300 ease-in-out
+          ${isMobile ? '' : ''}
         `}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[var(--border-primary)]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">G</span>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[#3b82f6] flex items-center justify-center shadow-sm">
+              <span className="text-white font-semibold text-sm">G</span>
             </div>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-medium text-[var(--text-primary)] text-sm">
               GenZ Smart
             </span>
           </div>
           <button
             onClick={toggleSidebar}
-            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+            className="p-1.5 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
             aria-label="Close sidebar"
           >
-            <PanelLeft className="w-5 h-5" />
+            <PanelLeftClose className="w-4 h-4" />
           </button>
         </div>
 
         {/* New Chat Button */}
-        <div className="p-4">
-          <Button
+        <div className="p-3">
+          <button
             onClick={handleNewChat}
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="w-full"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--accent-primary)] text-white rounded-lg font-medium text-sm hover:bg-[var(--accent-primary-hover)] active:bg-[var(--accent-primary-active)] transition-colors shadow-sm"
           >
+            <Plus className="w-4 h-4" />
             New Chat
-          </Button>
+          </button>
+        </div>
+
+        {/* Search (Visual only) */}
+        <div className="px-3 pb-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg pl-9 pr-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--border-focus)] transition-colors"
+            />
+          </div>
         </div>
 
         {/* Conversations List */}
-        <div className="flex-1 overflow-y-auto px-3">
+        <div className="flex-1 overflow-y-auto px-2">
           {conversations.length === 0 ? (
-            <div className="text-center py-8 text-[var(--text-tertiary)]">
-              <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No conversations yet</p>
-              <p className="text-xs mt-1">Start a new chat to begin</p>
+            <div className="text-center py-8 px-4">
+              <MessageSquare className="w-8 h-8 mx-auto mb-3 text-[var(--text-tertiary)] opacity-50" />
+              <p className="text-sm text-[var(--text-tertiary)]">No conversations yet</p>
+              <p className="text-xs text-[var(--text-disabled)] mt-1">
+                Start a new chat to begin
+              </p>
             </div>
           ) : (
             groupOrder.map(
               (group) =>
                 groupedConversations[group]?.length > 0 && (
-                  <div key={group} className="mb-4">
-                    <h3 className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider px-2 mb-2">
+                  <div key={group} className="mb-2">
+                    <h3 className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider px-3 mb-1.5">
                       {group}
                     </h3>
                     {groupedConversations[group].map((conversation) => (
@@ -206,8 +221,8 @@ export const Sidebar: React.FC = () => {
                         key={conversation.id}
                         onClick={() => handleSelectConversation(conversation)}
                         className={`
-                          w-full flex items-center gap-2 px-3 py-2.5 rounded-lg
-                          text-left text-sm transition-colors duration-150
+                          w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg
+                          text-left text-sm transition-all duration-150
                           group relative
                           ${
                             currentConversation?.id === conversation.id
@@ -216,26 +231,26 @@ export const Sidebar: React.FC = () => {
                           }
                         `}
                       >
-                        <MessageSquare className="w-4 h-4 flex-shrink-0 opacity-70" />
+                        <MessageSquare className="w-4 h-4 flex-shrink-0 opacity-60" />
                         <div className="flex-1 min-w-0">
-                          <p className="truncate font-medium">
+                          <p className="truncate font-medium text-xs">
                             {conversation.title}
                           </p>
-                          <p className="text-xs opacity-60">
+                          <p className="text-xs opacity-50 mt-0.5">
                             {conversation.message_count} messages
                           </p>
                         </div>
                         {conversation.is_pinned && (
                           <Pin className="w-3 h-3 flex-shrink-0 text-[var(--accent-primary)]" />
                         )}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 absolute right-2 top-1/2 -translate-y-1/2 bg-[var(--bg-hover)] rounded-md">
                           <button
                             onClick={(e) =>
                               handleDeleteConversation(e, conversation.id)
                             }
-                            className="p-1 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] hover:text-[var(--accent-error)]"
+                            className="p-1.5 rounded text-[var(--text-tertiary)] hover:text-[var(--accent-error)] transition-colors"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
                       </button>
@@ -247,10 +262,10 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-4 border-t border-[var(--border-primary)] space-y-2">
+        <div className="p-3 border-t border-[var(--border-primary)]">
           <button
             onClick={openSettings}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-sm"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors text-sm"
           >
             <Settings className="w-4 h-4" />
             Settings

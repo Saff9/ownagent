@@ -67,20 +67,20 @@ export const Dropdown: React.FC<DropdownProps> = ({
         disabled={disabled}
         className={`
           w-full flex items-center justify-between gap-2
-          bg-[var(--bg-input)] text-[var(--text-primary)]
+          bg-[var(--bg-secondary)] text-[var(--text-primary)]
           border border-[var(--border-primary)] rounded-lg
-          px-3 py-2.5
-          focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)]
+          px-3 py-2
+          focus:outline-none focus:border-[var(--border-focus)] focus:ring-1 focus:ring-[var(--border-focus)]
           disabled:opacity-50 disabled:cursor-not-allowed
-          transition-colors duration-200
-          ${isOpen ? 'border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : ''}
+          transition-all duration-200
+          ${isOpen ? 'border-[var(--border-focus)] ring-1 ring-[var(--border-focus)]' : ''}
         `}
       >
         <div className="flex items-center gap-2 min-w-0">
           {selectedOption?.icon && (
             <span className="flex-shrink-0">{selectedOption.icon}</span>
           )}
-          <span className="truncate">
+          <span className="truncate text-sm">
             {selectedOption?.label || placeholder}
           </span>
         </div>
@@ -92,7 +92,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-lg max-h-60 overflow-auto animate-fadeIn">
+        <div className="absolute z-50 w-full mt-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg shadow-lg animate-slideUp overflow-hidden">
           {options.map((option) => (
             <button
               key={option.value}

@@ -16,15 +16,15 @@ export const MessageList: React.FC = () => {
 
   if (messages.length === 0 && !streamingMessage) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-white" />
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <div className="text-center max-w-md">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[#3b82f6] flex items-center justify-center shadow-lg shadow-[var(--accent-primary)]/20">
+            <Sparkles className="w-7 h-7 text-white" />
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
             Welcome to GenZ Smart
           </h2>
-          <p className="text-[var(--text-secondary)] max-w-md">
+          <p className="text-[var(--text-secondary)] text-sm">
             Start a conversation by typing a message below. I can help you with
             coding, writing, analysis, and much more.
           </p>
@@ -36,7 +36,7 @@ export const MessageList: React.FC = () => {
   return (
     <div
       ref={scrollRef}
-      className="flex-1 overflow-y-auto"
+      className="flex-1 overflow-y-auto scroll-smooth"
     >
       <div className="max-w-3xl mx-auto">
         {messages.map((message, index) => (
@@ -58,25 +58,16 @@ export const MessageList: React.FC = () => {
 
         {/* Typing indicator */}
         {isLoading && !streamingMessage && (
-          <div className="flex gap-4 px-4 py-6 bg-[var(--bg-secondary)]/50">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
+          <div className="flex gap-4 px-6 py-5">
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[#3b82f6] flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <span
-                className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce"
-                style={{ animationDelay: '0ms' }}
-              />
-              <span
-                className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce"
-                style={{ animationDelay: '150ms' }}
-              />
-              <span
-                className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce"
-                style={{ animationDelay: '300ms' }}
-              />
+            <div className="flex items-center gap-1.5 py-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--text-tertiary)] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[var(--text-tertiary)] animate-pulse" style={{ animationDelay: '0.2s' }} />
+              <span className="w-2 h-2 rounded-full bg-[var(--text-tertiary)] animate-pulse" style={{ animationDelay: '0.4s' }} />
             </div>
           </div>
         )}

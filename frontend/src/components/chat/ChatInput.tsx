@@ -3,7 +3,6 @@ import { Send, Paperclip, X, FileText, Image } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { chatService } from '../../services/chat';
 import { fileService } from '../../services/files';
-import { Button } from '../common/Button';
 
 interface ChatInputProps {
   conversationId: string;
@@ -184,25 +183,27 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
     return <FileText className="w-4 h-4" />;
   };
 
+  const canSend = (message.trim().length > 0 || files.length > 0) && !isLoading;
+
   return (
-    <div className="border-t border-[var(--border-primary)] bg-[var(--bg-primary)] p-4">
+    <div className="border-t border-[var(--border-primary)] bg-[var(--bg-primary)]">
       {/* File attachments */}
       {files.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-2 px-4 pt-3">
           {files.map((file, index) => (
             <div
               key={index}
               className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg text-sm"
             >
-              {getFileIcon(file)}
-              <span className="text-[var(--text-primary)] truncate max-w-[150px]">
+              <span className="text-[var(--text-tertiary)]">{getFileIcon(file)}</span>
+              <span className="text-[var(--text-primary)] truncate max-w-[120px]">
                 {file.name}
               </span>
               <span className="text-[var(--text-tertiary)] text-xs">
                 {fileService.formatFileSize(file.size)}
               </span>
               {uploadProgress[file.name] !== undefined && (
-                <div className="w-16 h-1 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+                <div className="w-14 h-1 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-[var(--accent-primary)] transition-all duration-300"
                     style={{ width: `${uploadProgress[file.name]}%` }}
@@ -211,9 +212,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
               )}
               <button
                 onClick={() => removeFile(index)}
-                className="p-0.5 rounded text-[var(--text-tertiary)] hover:text-[var(--accent-error)] hover:bg-[var(--bg-hover)]"
+                className="p-0.5 rounded text-[var(--text-tertiary)] hover:text-[var(--accent-error)] hover:bg-[var(--bg-hover)] transition-colors"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3 h-3" />
               </button>
             </div>
           ))}
@@ -221,7 +222,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
       )}
 
       {/* Input area */}
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-2 p-4">
         <input
           ref={fileInputRef}
           type="file"
@@ -232,7 +233,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-3 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+          className="p-2.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
           title="Attach files"
         >
           <Paperclip className="w-5 h-5" />
@@ -244,35 +245,41 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
             value={message}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message... (Shift+Enter for new line)"
+            placeholder="Send a message..."
             rows={1}
-            className="w-full bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-lg px-4 py-3 pr-12 resize-none focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] placeholder:text-[var(--text-tertiary)]"
+            className="w-full bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] rounded-xl px-4 py-3 pr-20 resize-none focus:outline-none focus:border-[var(--border-focus)] focus:ring-1 focus:ring-[var(--border-focus)] placeholder:text-[var(--text-tertiary)] transition-all duration-200"
             disabled={isLoading}
           />
           <div className="absolute right-3 bottom-3 text-xs text-[var(--text-tertiary)]">
-            {isLoading ? 'Sending...' : `${message.length} chars`}
+            {message.length > 0 && <span>{message.length} chars</span>}
           </div>
         </div>
 
-        <Button
+        <button
           onClick={handleSend}
-          isLoading={isLoading}
-          disabled={(!message.trim() && files.length === 0) || isLoading}
-          className="!p-3"
+          disabled={!canSend}
+          className={`p-3 rounded-xl transition-all duration-200 ${
+            canSend
+              ? 'bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary-hover)] shadow-sm'
+              : 'bg-[var(--bg-tertiary)] text-[var(--text-disabled)] cursor-not-allowed'
+          }`}
         >
           <Send className="w-5 h-5" />
-        </Button>
+        </button>
       </div>
 
       {/* Provider indicator */}
-      <div className="mt-2 text-xs text-[var(--text-tertiary)] text-center">
+      <div className="px-4 pb-3 text-center">
         {selectedProvider && selectedModel ? (
-          <span>
-            Using <span className="text-[var(--accent-primary)]">{selectedProvider}</span> /{' '}
-            {selectedModel}
+          <span className="text-xs text-[var(--text-tertiary)]">
+            Using <span className="text-[var(--accent-primary)] font-medium">{selectedProvider}</span>
+            <span className="mx-1">/</span>
+            <span className="text-[var(--text-secondary)]">{selectedModel}</span>
           </span>
         ) : (
-          <span>Select a provider to start chatting</span>
+          <span className="text-xs text-[var(--text-tertiary)]">
+            Select a provider to start chatting
+          </span>
         )}
       </div>
     </div>
