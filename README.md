@@ -10,16 +10,82 @@ This system runs **100% locally**, supports **chat, coding, APIs, and web apps**
 
 ---
 
-## 🚀 What This Project Does
-- Run large language models locally using Ollama
-- Provide an OpenAI-compatible API
-- Build your own AI assistant
-- Support coding, reasoning, and automation
-- Ready for ZIP upload & GitHub hosting
+## 🚀 Quick Start
+
+### Option 1: Local Development
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd localai
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+# or: source venv/bin/activate  # Linux/macOS
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Copy environment template
+copy .env.example .env  # Windows
+# or: cp .env.example .env  # Linux/macOS
+
+# Start Ollama (if using local models)
+ollama serve
+
+# Run the API
+python -m src.api.main
+
+# In another terminal, start the frontend
+cd frontend
+npm install
+npm run dev
+```
+
+The API will be available at `http://localhost:8000`
+The frontend will be available at `http://localhost:5173`
+
+### Option 2: Docker Deployment
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd localai
+
+# Copy environment template
+copy .env.example .env
+# Edit .env with your configuration
+
+# Start with Docker Compose
+docker-compose up -d
+
+# Access the application
+# API: http://localhost:8000
+# Frontend: http://localhost:5173
+```
+
+### Option 3: Production Deployment
+
+```bash
+# Build and run with Docker
+docker build -t genzsmart-api .
+docker run -d -p 8000:8000 --name genzsmart \
+  -v ./data:/app/data \
+  -v ./uploads:/app/uploads \
+  -e GENZSMART_DEBUG=false \
+  genzsmart-api
+
+# Build frontend
+cd frontend
+docker build -t genzsmart-frontend .
+docker run -d -p 80:80 --name frontend genzsmart-frontend
+```
 
 ---
 
 ## 🧠 Available AI Models
+
 This system supports the following models (pre-downloaded via Ollama):
 
 | Model Name | Purpose |
@@ -32,17 +98,30 @@ This system supports the following models (pre-downloaded via Ollama):
 
 ---
 
-## 🖥️ System Requirements
-- Windows / Linux / macOS
-- Python **3.9+**
-- Minimum **8GB RAM** (16GB recommended)
-- Ollama installed
+## 🔧 Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `GENZSMART_APP_NAME` | Application name | GenZ Smart API |
+| `GENZSMART_APP_VERSION` | Version string | 1.0.0 |
+| `GENZSMART_DEBUG` | Debug mode | false |
+| `GENZSMART_HOST` | API host | 0.0.0.0 |
+| `GENZSMART_PORT` | API port | 8000 |
+| `GENZSMART_DATABASE_URL` | Database connection | sqlite:///./data/genzsmart.db |
+| `GENZSMART_ENCRYPTION_KEY` | API key encryption key | (auto-generated) |
+| `GENZSMART_CORS_ORIGINS` | Allowed CORS origins | localhost origins |
+| `OPENAI_API_KEY` | OpenAI API key | (optional) |
+| `ANTHROPIC_API_KEY` | Anthropic API key | (optional) |
+| `DEEPSEEK_API_KEY` | DeepSeek API key | (optional) |
 
 ---
 
 ## 📦 Installation Guide
 
 ### 1️⃣ Install Ollama
+
 Download and install Ollama from the official website:
 - **Windows**: [Download Ollama for Windows](https://ollama.com/download/windows)
 - **macOS**: [Download Ollama for macOS](https://ollama.com/download/mac)
@@ -54,6 +133,7 @@ ollama --version
 ```
 
 ### 2️⃣ Download AI Models
+
 Pull the required models:
 ```bash
 ollama pull qwen2.5-coder:1.5b-base
@@ -65,12 +145,14 @@ ollama pull deepseek-coder:6.7b-instruct-q4_0
 Note: `deepseek-v3.1:671b-cloud` is for reference only and not locally runnable.
 
 ### 3️⃣ Install Python Dependencies
+
 Clone or download this repository, then install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4️⃣ Run the System
+
 Start the local AI system:
 ```bash
 python -m src.api.main
@@ -90,6 +172,7 @@ python -m src.cli.cli --help
 ## 📖 Usage
 
 ### API Usage
+
 The system provides OpenAI-compatible endpoints:
 
 - **Chat Completions**: `POST /v1/chat/completions`
@@ -107,9 +190,11 @@ print(response.json())
 ```
 
 ### Web Interface
+
 Access the chat interface at `http://localhost:8000/chat` to interact with the AI through a web browser.
 
 ### CLI Tool
+
 Use the command-line interface for direct interaction:
 ```bash
 # Chat with the AI
@@ -124,25 +209,43 @@ python -m src.cli.cli set-model qwen2.5-coder:latest
 
 ---
 
-## 🔧 Configuration
-Model configurations and settings can be found in `src/models/config.py`. You can modify default models, API settings, and add custom models there.
+## 🛠️ Production Deployment Checklist
+
+- [ ] Set `GENZSMART_DEBUG=false`
+- [ ] Configure `GENZSMART_CORS_ORIGINS` with your domain
+- [ ] Generate a strong `GENZSMART_ENCRYPTION_KEY`
+- [ ] Set up PostgreSQL for production (optional)
+- [ ] Configure reverse proxy (nginx/Apache)
+- [ ] Set up SSL/TLS certificates
+- [ ] Configure logging
+- [ ] Set up monitoring
 
 ---
 
-## 🛠️ Development
-To contribute or extend the system:
+## 🔒 Security
 
-1. The system is modular with extensions in `src/extensions/`
-2. Add new API routes in `src/api/routes/`
-3. Customize the web interface in `src/web/`
-4. Add CLI commands in `src/cli/cli.py`
+- All API keys are encrypted at rest
+- CORS is configured to restrict origins
+- Security headers are added to all responses
+- Rate limiting is available via middleware
+
+---
+
+## 🖥️ System Requirements
+
+- Windows / Linux / macOS
+- Python **3.9+**
+- Minimum **8GB RAM** (16GB recommended)
+- Ollama installed
 
 ---
 
 ## 📄 License
+
 This project is open-source. Feel free to modify and distribute.
 
 ---
 
 ## 🤝 Contributing
+
 Contributions are welcome! Please submit issues and pull requests on GitHub.
